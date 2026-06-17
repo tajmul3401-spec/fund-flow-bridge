@@ -60,6 +60,10 @@ type FlowConfig = {
 const contexts = new Map<string, BrowserContext>();
 let inFlight = 0;
 
+const DEFAULT_LOGIN_USERNAME = '#username, input[name="LoginForm[username]"], input[name="username"], input[name="email"], input[type="email"]';
+const DEFAULT_LOGIN_PASSWORD = '#password, input[name="LoginForm[password]"], input[name="password"], input[type="password"]';
+const DEFAULT_AMOUNT_SELECTOR = '#amount, input[name="amount"], input[name="AddFoundsForm[amount]"], input[name="AddFundsForm[amount]"], input[placeholder*="Amount" i]';
+
 async function api(pathName: string, body?: unknown, method = "POST") {
   const res = await fetch(`${BASE_URL}${pathName}`, {
     method,
@@ -89,8 +93,13 @@ async function loginIfNeeded(page: Page, job: Job): Promise<void> {
   await page.goto(loginUrl, { waitUntil: "domcontentloaded", timeout: 20_000 });
   if (cfg.success_url_contains && page.url().includes(cfg.success_url_contains)) return;
   if (cfg.username_selector && cfg.password_selector && cfg.submit_selector) {
-    await page.fill(cfg.username_selector, job.provider.username);
-    await page.fill(cfg.password_selector, job.provider.password);
+    const usernameSelector = `${cfg.username_selector}, ${DEFAULT_LOGIN_USERNAME}`;
+    const passwordSelector = `${cfg.password_selector}, ${DEFAULT_LOGIN_PASSWORD}`;
+    if (!(await page.locator(usernameSelector).first().isVisible({ timeout: 8_000 }).catch(() => false))) {
+      await page.goto(`${job.provider.base_url}/#login`, { waitUntil: "domcontentloaded", timeout: 20_000 });
+    }
+    await page.locator(usernameSelector).first().fill(job.provider.username, { timeout: 15_000 });
+    await page.locator(passwordSelector).first().fill(job.provider.password, { timeout: 15_000 });
     await Promise.all([
       page.waitForLoadState("domcontentloaded"),
       page.click(cfg.submit_selector),
@@ -103,7 +112,14 @@ async function captureCheckoutUrl(page: Page, job: Job): Promise<string> {
   const addUrl = job.provider.base_url + (cfg.url_path ?? "/addfund");
   await page.goto(addUrl, { waitUntil: "domcontentloaded", timeout: 20_000 });
 
-  if (cfg.amount_selector) await page.fill(cfg.amount_selector, String(job.amount));
+  if (cfg.amount_selector) {
+    const amountSelector = `${cfg.amount_selector}, ${DEFAULT_AMOUNT_SELECTOR}`;
+    if (!(await page.locator(amountSelector).first().isVisible({ timeout: 8_000 }).catch(() => false))) {
+      await loginIfNeeded(page, job);
+      await page.goto(addUrl, { waitUntil: "domcontentloaded", timeout: 20_000 });
+    }
+    await page.locator(amountSelector).first().fill(String(job.amount), { timeout: 15_000 });
+  }
   if (cfg.method_selector_template) {
     const sel = cfg.method_selector_template.replace("{target}", job.payment_method_target);
     await page.click(sel, { timeout: 8_000 });
