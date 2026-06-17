@@ -267,3 +267,84 @@ export const dashboardStats = createServerFn({ method: "GET" })
       jobs_pending: pending.count ?? 0,
     };
   });
+
+// ---------- Test Transaction (admin-only, bypasses API auth) ----------
+const TestTxnSchema = z.object({
+  provider_id: z.string().uuid(),
+  amount: z.number().positive().default(1),
+  payment_method_target: z.string().min(1).default("Visa | Master | Amex | Nexus"),
+});
+
+export const createTestTransaction = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: z.infer<typeof TestTxnSchema>) => d)
+  .handler(async ({ context, data }) => {
+    await assertAdmin(context);
+    const parsed = TestTxnSchema.parse(data);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { generateSessionId, generateCallbackToken } = await import("@/lib/apb/crypto.server");
+
+    const { data: provider } = await supabaseAdmin
+      .from("providers").select("id, enabled, name").eq("id", parsed.provider_id).maybeSingle();
+    if (!provider) throw new Error("provider_not_found");
+    if (!provider.enabled) throw new Error("provider_disabled");
+
+    // Find or create a synthetic "admin-test" api_client so FK is satisfied.
+    let { data: testClient } = await supabaseAdmin
+      .from("api_clients").select("id").eq("name", "__admin_test__").maybeSingle();
+    if (!testClient) {
+      const { generateApiKey, generateHmacSecret, encrypt } = await import("@/lib/apb/crypto.server");
+      const k = generateApiKey();
+      const h = generateHmacSecret();
+      const { data: created, error } = await supabaseAdmin.from("api_clients").insert({
+        name: "__admin_test__",
+        brand_name: "Admin Test",
+        webhook_url: "https://example.com/webhook",
+        return_url: "https://example.com/return",
+        default_provider_id: parsed.provider_id,
+        rate_limit_per_min: 60,
+        enabled: false, // disabled so it can't be used via public API
+        api_key_prefix: k.prefix,
+        api_key_hash: k.hash,
+        hmac_secret_enc: encrypt(h),
+      }).select("id").single();
+      if (error) throw new Error(error.message);
+      testClient = created;
+    }
+
+    const sessionId = generateSessionId();
+    const callbackToken = generateCallbackToken();
+    const smmTxnId = `test_${Date.now()}`;
+
+    const { data: txn, error: txnErr } = await supabaseAdmin.from("transactions").insert({
+      apb_session_id: sessionId,
+      api_client_id: testClient!.id,
+      provider_id: parsed.provider_id,
+      smm_transaction_id: smmTxnId,
+      client_user_id: `admin_${context.userId.slice(0, 8)}`,
+      amount: parsed.amount,
+      currency: "BDT",
+      payment_method_target: parsed.payment_method_target,
+      status: "INITIALIZED",
+      provider_callback_token: callbackToken,
+      metadata: { test: true, created_by: context.userId },
+    }).select("id").single();
+    if (txnErr || !txn) throw new Error(txnErr?.message ?? "create_failed");
+
+    await supabaseAdmin.from("automation_jobs").insert({
+      transaction_id: txn.id, status: "PENDING", attempts: 0, max_attempts: 3,
+    });
+
+    await supabaseAdmin.from("audit_logs").insert({
+      actor_type: "user", actor_id: context.userId, action: "admin.test_transaction",
+      resource_type: "transaction", resource_id: txn.id,
+      details: { provider_id: parsed.provider_id, amount: parsed.amount },
+    });
+
+    return {
+      apb_session_id: sessionId,
+      transaction_id: txn.id,
+      gateway_url: `/checkout/${sessionId}`,
+      smm_transaction_id: smmTxnId,
+    };
+  });
