@@ -1,7 +1,7 @@
 // Integration-managed auth gate (ssr: false, redirects to /auth).
 import { createFileRoute, Outlet, redirect, Link, useRouter } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
-import { LayoutDashboard, Server, Users, Receipt, Cpu, BookOpen, LogOut } from "lucide-react";
+import { LayoutDashboard, Server, Users, Receipt, Cpu, BookOpen, LogOut, FlaskConical } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
@@ -32,6 +32,7 @@ function AuthedLayout() {
           <NavItem to="/admin/clients" icon={Users} label="API Clients" />
           <NavItem to="/admin/transactions" icon={Receipt} label="Transactions" />
           <NavItem to="/admin/workers" icon={Cpu} label="Workers" />
+          <NavItem to="/admin/test" icon={FlaskConical} label="Test Transaction" />
           <a href="/docs" target="_blank" className="flex items-center gap-2 rounded-md px-3 py-2 text-sidebar-foreground hover:bg-sidebar-accent">
             <BookOpen className="h-4 w-4" /> API Docs
           </a>
