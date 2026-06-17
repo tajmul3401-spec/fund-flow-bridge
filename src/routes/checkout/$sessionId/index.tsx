@@ -3,7 +3,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 
-export const Route = createFileRoute("/checkout/$sessionId")({
+export const Route = createFileRoute("/checkout/$sessionId/")({
   head: () => ({
     meta: [
       { title: "Payment Gateway" },

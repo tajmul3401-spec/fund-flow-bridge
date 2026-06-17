@@ -10,6 +10,9 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as CheckoutSessionIdIndexRouteImport } from './routes/checkout/$sessionId/index'
+import { Route as CheckoutSessionIdApiPollRouteImport } from './routes/checkout/$sessionId/api/poll'
+import { Route as CheckoutSessionIdApiMarkRedirectedRouteImport } from './routes/checkout/$sessionId/api/mark-redirected'
 import { Route as ApiPublicV1WorkerClaimRouteImport } from './routes/api/public/v1/worker/claim'
 import { Route as ApiPublicV1ProviderCallbackSessionIdRouteImport } from './routes/api/public/v1/provider-callback/$sessionId'
 import { Route as ApiPublicV1CheckoutInitializeRouteImport } from './routes/api/public/v1/checkout/initialize'
@@ -22,6 +25,23 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CheckoutSessionIdIndexRoute = CheckoutSessionIdIndexRouteImport.update({
+  id: '/checkout/$sessionId/',
+  path: '/checkout/$sessionId/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CheckoutSessionIdApiPollRoute =
+  CheckoutSessionIdApiPollRouteImport.update({
+    id: '/checkout/$sessionId/api/poll',
+    path: '/checkout/$sessionId/api/poll',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const CheckoutSessionIdApiMarkRedirectedRoute =
+  CheckoutSessionIdApiMarkRedirectedRouteImport.update({
+    id: '/checkout/$sessionId/api/mark-redirected',
+    path: '/checkout/$sessionId/api/mark-redirected',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicV1WorkerClaimRoute = ApiPublicV1WorkerClaimRouteImport.update({
   id: '/api/public/v1/worker/claim',
   path: '/api/public/v1/worker/claim',
@@ -60,6 +80,9 @@ const ApiPublicV1WorkerJobsJobIdHeartbeatRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/checkout/$sessionId/': typeof CheckoutSessionIdIndexRoute
+  '/checkout/$sessionId/api/mark-redirected': typeof CheckoutSessionIdApiMarkRedirectedRoute
+  '/checkout/$sessionId/api/poll': typeof CheckoutSessionIdApiPollRoute
   '/api/public/v1/checkout/initialize': typeof ApiPublicV1CheckoutInitializeRoute
   '/api/public/v1/provider-callback/$sessionId': typeof ApiPublicV1ProviderCallbackSessionIdRoute
   '/api/public/v1/worker/claim': typeof ApiPublicV1WorkerClaimRoute
@@ -69,6 +92,9 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/checkout/$sessionId': typeof CheckoutSessionIdIndexRoute
+  '/checkout/$sessionId/api/mark-redirected': typeof CheckoutSessionIdApiMarkRedirectedRoute
+  '/checkout/$sessionId/api/poll': typeof CheckoutSessionIdApiPollRoute
   '/api/public/v1/checkout/initialize': typeof ApiPublicV1CheckoutInitializeRoute
   '/api/public/v1/provider-callback/$sessionId': typeof ApiPublicV1ProviderCallbackSessionIdRoute
   '/api/public/v1/worker/claim': typeof ApiPublicV1WorkerClaimRoute
@@ -79,6 +105,9 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/checkout/$sessionId/': typeof CheckoutSessionIdIndexRoute
+  '/checkout/$sessionId/api/mark-redirected': typeof CheckoutSessionIdApiMarkRedirectedRoute
+  '/checkout/$sessionId/api/poll': typeof CheckoutSessionIdApiPollRoute
   '/api/public/v1/checkout/initialize': typeof ApiPublicV1CheckoutInitializeRoute
   '/api/public/v1/provider-callback/$sessionId': typeof ApiPublicV1ProviderCallbackSessionIdRoute
   '/api/public/v1/worker/claim': typeof ApiPublicV1WorkerClaimRoute
@@ -90,6 +119,9 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/checkout/$sessionId/'
+    | '/checkout/$sessionId/api/mark-redirected'
+    | '/checkout/$sessionId/api/poll'
     | '/api/public/v1/checkout/initialize'
     | '/api/public/v1/provider-callback/$sessionId'
     | '/api/public/v1/worker/claim'
@@ -99,6 +131,9 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/checkout/$sessionId'
+    | '/checkout/$sessionId/api/mark-redirected'
+    | '/checkout/$sessionId/api/poll'
     | '/api/public/v1/checkout/initialize'
     | '/api/public/v1/provider-callback/$sessionId'
     | '/api/public/v1/worker/claim'
@@ -108,6 +143,9 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/checkout/$sessionId/'
+    | '/checkout/$sessionId/api/mark-redirected'
+    | '/checkout/$sessionId/api/poll'
     | '/api/public/v1/checkout/initialize'
     | '/api/public/v1/provider-callback/$sessionId'
     | '/api/public/v1/worker/claim'
@@ -118,6 +156,9 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CheckoutSessionIdIndexRoute: typeof CheckoutSessionIdIndexRoute
+  CheckoutSessionIdApiMarkRedirectedRoute: typeof CheckoutSessionIdApiMarkRedirectedRoute
+  CheckoutSessionIdApiPollRoute: typeof CheckoutSessionIdApiPollRoute
   ApiPublicV1CheckoutInitializeRoute: typeof ApiPublicV1CheckoutInitializeRoute
   ApiPublicV1ProviderCallbackSessionIdRoute: typeof ApiPublicV1ProviderCallbackSessionIdRoute
   ApiPublicV1WorkerClaimRoute: typeof ApiPublicV1WorkerClaimRoute
@@ -133,6 +174,27 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/checkout/$sessionId/': {
+      id: '/checkout/$sessionId/'
+      path: '/checkout/$sessionId'
+      fullPath: '/checkout/$sessionId/'
+      preLoaderRoute: typeof CheckoutSessionIdIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/checkout/$sessionId/api/poll': {
+      id: '/checkout/$sessionId/api/poll'
+      path: '/checkout/$sessionId/api/poll'
+      fullPath: '/checkout/$sessionId/api/poll'
+      preLoaderRoute: typeof CheckoutSessionIdApiPollRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/checkout/$sessionId/api/mark-redirected': {
+      id: '/checkout/$sessionId/api/mark-redirected'
+      path: '/checkout/$sessionId/api/mark-redirected'
+      fullPath: '/checkout/$sessionId/api/mark-redirected'
+      preLoaderRoute: typeof CheckoutSessionIdApiMarkRedirectedRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/v1/worker/claim': {
@@ -182,6 +244,10 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CheckoutSessionIdIndexRoute: CheckoutSessionIdIndexRoute,
+  CheckoutSessionIdApiMarkRedirectedRoute:
+    CheckoutSessionIdApiMarkRedirectedRoute,
+  CheckoutSessionIdApiPollRoute: CheckoutSessionIdApiPollRoute,
   ApiPublicV1CheckoutInitializeRoute: ApiPublicV1CheckoutInitializeRoute,
   ApiPublicV1ProviderCallbackSessionIdRoute:
     ApiPublicV1ProviderCallbackSessionIdRoute,
