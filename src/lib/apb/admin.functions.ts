@@ -38,8 +38,8 @@ export const claimFirstAdmin = createServerFn({ method: "POST" })
 const ProviderSchema = z.object({
   name: z.string().min(1).max(100),
   base_url: z.string().url(),
-  username: z.string().min(1),
-  password: z.string().min(1),
+  username: z.string().default(""),
+  password: z.string().default(""),
   flow_config: z.record(z.string(), z.any()).default({}),
   currency: z.string().length(3).default("BDT"),
   exchange_rate: z.number().positive().default(1),
@@ -65,19 +65,24 @@ export const upsertProvider = createServerFn({ method: "POST" })
   .handler(async ({ context, data }) => {
     await assertAdmin(context);
     const parsed = ProviderSchema.parse(data);
+    const isUpdate = Boolean(data.id);
+    if (!isUpdate) {
+      if (!parsed.username) throw new Error("username_required");
+      if (!parsed.password) throw new Error("password_required");
+    }
     const { encrypt } = await import("@/lib/apb/crypto.server");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const payload = {
+    const payload: Record<string, unknown> = {
       name: parsed.name,
       base_url: parsed.base_url,
-      login_username_enc: encrypt(parsed.username),
-      login_password_enc: encrypt(parsed.password),
       flow_config: parsed.flow_config,
       currency: parsed.currency,
       exchange_rate: parsed.exchange_rate,
       enabled: parsed.enabled,
       notes: parsed.notes ?? null,
     };
+    if (parsed.username) payload.login_username_enc = encrypt(parsed.username);
+    if (parsed.password) payload.login_password_enc = encrypt(parsed.password);
     if (data.id) {
       const { error } = await supabaseAdmin.from("providers").update(payload).eq("id", data.id);
       if (error) throw new Error(error.message);
