@@ -10,6 +10,7 @@ const POLL_MS = Number(process.env.POLL_INTERVAL_MS ?? 1000);
 const CONCURRENCY = Number(process.env.CONCURRENCY ?? 3);
 const PROFILES_DIR = process.env.BROWSER_PROFILES_DIR ?? "./browser-profiles";
 const HEADLESS = (process.env.HEADLESS ?? "true") !== "false";
+const WORKER_BUILD = "login-fix-2026-06-17-2305";
 
 function mustEnv(k: string): string {
   const v = process.env[k];
@@ -301,5 +302,5 @@ async function pollLoop() {
   }
 }
 
-console.log(`APB worker starting → ${BASE_URL}, concurrency=${CONCURRENCY}, headless=${HEADLESS}`);
+console.log(`APB worker starting → ${BASE_URL}, concurrency=${CONCURRENCY}, headless=${HEADLESS}, build=${WORKER_BUILD}`);
 pollLoop().catch(e => { console.error(e); process.exit(1); });
