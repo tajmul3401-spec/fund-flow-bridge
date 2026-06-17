@@ -64,6 +64,13 @@ const DEFAULT_LOGIN_USERNAME = '#username, input[name="LoginForm[username]"], in
 const DEFAULT_LOGIN_PASSWORD = '#password, input[name="LoginForm[password]"], input[name="password"], input[type="password"]';
 const DEFAULT_AMOUNT_SELECTOR = '#amount, input[name="amount"], input[name="AddFoundsForm[amount]"], input[name="AddFundsForm[amount]"], input[placeholder*="Amount" i]';
 
+async function isReadyForCapture(page: Page, cfg: FlowConfig["add_funds"] = {}): Promise<boolean> {
+  if (cfg.final_url_contains && page.url().includes(cfg.final_url_contains)) return true;
+  if (cfg.wait_for_selector && await page.locator(cfg.wait_for_selector).first().isVisible({ timeout: 500 }).catch(() => false)) return true;
+  if (cfg.final_url_capture && await page.locator(cfg.final_url_capture).first().isVisible({ timeout: 500 }).catch(() => false)) return true;
+  return false;
+}
+
 async function api(pathName: string, body?: unknown, method = "POST") {
   const res = await fetch(`${BASE_URL}${pathName}`, {
     method,
@@ -138,8 +145,17 @@ async function captureCheckoutUrl(page: Page, job: Job): Promise<string> {
     ]);
   }
   for (const sel of cfg.gateway_selector_chain ?? []) {
-    await page.waitForSelector(sel, { timeout: 10_000 });
-    await page.click(sel);
+    if (await isReadyForCapture(page, cfg)) break;
+
+    const target = page.locator(sel).first();
+    const visible = await target.isVisible({ timeout: 10_000 }).catch(() => false);
+    if (!visible) {
+      console.log(`[${job.apb_session_id}] selector not visible, skipping: ${sel} (${page.url()})`);
+      continue;
+    }
+
+    await target.click({ timeout: 10_000 });
+    await page.waitForLoadState("domcontentloaded", { timeout: 10_000 }).catch(() => {});
   }
 
   // Wait for a specific element on the final page (e.g. card number input)
