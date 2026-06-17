@@ -9,38 +9,285 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as DocsRouteImport } from './routes/docs'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as CheckoutSessionIdIndexRouteImport } from './routes/checkout/$sessionId/index'
+import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
+import { Route as AuthenticatedAdminWorkersRouteImport } from './routes/_authenticated/admin/workers'
+import { Route as AuthenticatedAdminTransactionsRouteImport } from './routes/_authenticated/admin/transactions'
+import { Route as AuthenticatedAdminProvidersRouteImport } from './routes/_authenticated/admin/providers'
+import { Route as AuthenticatedAdminClientsRouteImport } from './routes/_authenticated/admin/clients'
+import { Route as CheckoutSessionIdApiPollRouteImport } from './routes/checkout/$sessionId/api/poll'
+import { Route as CheckoutSessionIdApiMarkRedirectedRouteImport } from './routes/checkout/$sessionId/api/mark-redirected'
+import { Route as ApiPublicV1WorkerClaimRouteImport } from './routes/api/public/v1/worker/claim'
+import { Route as ApiPublicV1ProviderCallbackSessionIdRouteImport } from './routes/api/public/v1/provider-callback/$sessionId'
+import { Route as ApiPublicV1CheckoutInitializeRouteImport } from './routes/api/public/v1/checkout/initialize'
+import { Route as ApiPublicV1CheckoutSessionIdStatusRouteImport } from './routes/api/public/v1/checkout/$sessionId/status'
+import { Route as ApiPublicV1WorkerJobsJobIdResultRouteImport } from './routes/api/public/v1/worker/jobs/$jobId/result'
+import { Route as ApiPublicV1WorkerJobsJobIdHeartbeatRouteImport } from './routes/api/public/v1/worker/jobs/$jobId/heartbeat'
 
+const DocsRoute = DocsRouteImport.update({
+  id: '/docs',
+  path: '/docs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CheckoutSessionIdIndexRoute = CheckoutSessionIdIndexRouteImport.update({
+  id: '/checkout/$sessionId/',
+  path: '/checkout/$sessionId/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
+  id: '/admin/',
+  path: '/admin/',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAdminWorkersRoute =
+  AuthenticatedAdminWorkersRouteImport.update({
+    id: '/admin/workers',
+    path: '/admin/workers',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdminTransactionsRoute =
+  AuthenticatedAdminTransactionsRouteImport.update({
+    id: '/admin/transactions',
+    path: '/admin/transactions',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdminProvidersRoute =
+  AuthenticatedAdminProvidersRouteImport.update({
+    id: '/admin/providers',
+    path: '/admin/providers',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdminClientsRoute =
+  AuthenticatedAdminClientsRouteImport.update({
+    id: '/admin/clients',
+    path: '/admin/clients',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const CheckoutSessionIdApiPollRoute =
+  CheckoutSessionIdApiPollRouteImport.update({
+    id: '/checkout/$sessionId/api/poll',
+    path: '/checkout/$sessionId/api/poll',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const CheckoutSessionIdApiMarkRedirectedRoute =
+  CheckoutSessionIdApiMarkRedirectedRouteImport.update({
+    id: '/checkout/$sessionId/api/mark-redirected',
+    path: '/checkout/$sessionId/api/mark-redirected',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicV1WorkerClaimRoute = ApiPublicV1WorkerClaimRouteImport.update({
+  id: '/api/public/v1/worker/claim',
+  path: '/api/public/v1/worker/claim',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicV1ProviderCallbackSessionIdRoute =
+  ApiPublicV1ProviderCallbackSessionIdRouteImport.update({
+    id: '/api/public/v1/provider-callback/$sessionId',
+    path: '/api/public/v1/provider-callback/$sessionId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicV1CheckoutInitializeRoute =
+  ApiPublicV1CheckoutInitializeRouteImport.update({
+    id: '/api/public/v1/checkout/initialize',
+    path: '/api/public/v1/checkout/initialize',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicV1CheckoutSessionIdStatusRoute =
+  ApiPublicV1CheckoutSessionIdStatusRouteImport.update({
+    id: '/api/public/v1/checkout/$sessionId/status',
+    path: '/api/public/v1/checkout/$sessionId/status',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicV1WorkerJobsJobIdResultRoute =
+  ApiPublicV1WorkerJobsJobIdResultRouteImport.update({
+    id: '/api/public/v1/worker/jobs/$jobId/result',
+    path: '/api/public/v1/worker/jobs/$jobId/result',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicV1WorkerJobsJobIdHeartbeatRoute =
+  ApiPublicV1WorkerJobsJobIdHeartbeatRouteImport.update({
+    id: '/api/public/v1/worker/jobs/$jobId/heartbeat',
+    path: '/api/public/v1/worker/jobs/$jobId/heartbeat',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/docs': typeof DocsRoute
+  '/admin/clients': typeof AuthenticatedAdminClientsRoute
+  '/admin/providers': typeof AuthenticatedAdminProvidersRoute
+  '/admin/transactions': typeof AuthenticatedAdminTransactionsRoute
+  '/admin/workers': typeof AuthenticatedAdminWorkersRoute
+  '/admin/': typeof AuthenticatedAdminIndexRoute
+  '/checkout/$sessionId/': typeof CheckoutSessionIdIndexRoute
+  '/checkout/$sessionId/api/mark-redirected': typeof CheckoutSessionIdApiMarkRedirectedRoute
+  '/checkout/$sessionId/api/poll': typeof CheckoutSessionIdApiPollRoute
+  '/api/public/v1/checkout/initialize': typeof ApiPublicV1CheckoutInitializeRoute
+  '/api/public/v1/provider-callback/$sessionId': typeof ApiPublicV1ProviderCallbackSessionIdRoute
+  '/api/public/v1/worker/claim': typeof ApiPublicV1WorkerClaimRoute
+  '/api/public/v1/checkout/$sessionId/status': typeof ApiPublicV1CheckoutSessionIdStatusRoute
+  '/api/public/v1/worker/jobs/$jobId/heartbeat': typeof ApiPublicV1WorkerJobsJobIdHeartbeatRoute
+  '/api/public/v1/worker/jobs/$jobId/result': typeof ApiPublicV1WorkerJobsJobIdResultRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/docs': typeof DocsRoute
+  '/admin/clients': typeof AuthenticatedAdminClientsRoute
+  '/admin/providers': typeof AuthenticatedAdminProvidersRoute
+  '/admin/transactions': typeof AuthenticatedAdminTransactionsRoute
+  '/admin/workers': typeof AuthenticatedAdminWorkersRoute
+  '/admin': typeof AuthenticatedAdminIndexRoute
+  '/checkout/$sessionId': typeof CheckoutSessionIdIndexRoute
+  '/checkout/$sessionId/api/mark-redirected': typeof CheckoutSessionIdApiMarkRedirectedRoute
+  '/checkout/$sessionId/api/poll': typeof CheckoutSessionIdApiPollRoute
+  '/api/public/v1/checkout/initialize': typeof ApiPublicV1CheckoutInitializeRoute
+  '/api/public/v1/provider-callback/$sessionId': typeof ApiPublicV1ProviderCallbackSessionIdRoute
+  '/api/public/v1/worker/claim': typeof ApiPublicV1WorkerClaimRoute
+  '/api/public/v1/checkout/$sessionId/status': typeof ApiPublicV1CheckoutSessionIdStatusRoute
+  '/api/public/v1/worker/jobs/$jobId/heartbeat': typeof ApiPublicV1WorkerJobsJobIdHeartbeatRoute
+  '/api/public/v1/worker/jobs/$jobId/result': typeof ApiPublicV1WorkerJobsJobIdResultRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/auth': typeof AuthRoute
+  '/docs': typeof DocsRoute
+  '/_authenticated/admin/clients': typeof AuthenticatedAdminClientsRoute
+  '/_authenticated/admin/providers': typeof AuthenticatedAdminProvidersRoute
+  '/_authenticated/admin/transactions': typeof AuthenticatedAdminTransactionsRoute
+  '/_authenticated/admin/workers': typeof AuthenticatedAdminWorkersRoute
+  '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
+  '/checkout/$sessionId/': typeof CheckoutSessionIdIndexRoute
+  '/checkout/$sessionId/api/mark-redirected': typeof CheckoutSessionIdApiMarkRedirectedRoute
+  '/checkout/$sessionId/api/poll': typeof CheckoutSessionIdApiPollRoute
+  '/api/public/v1/checkout/initialize': typeof ApiPublicV1CheckoutInitializeRoute
+  '/api/public/v1/provider-callback/$sessionId': typeof ApiPublicV1ProviderCallbackSessionIdRoute
+  '/api/public/v1/worker/claim': typeof ApiPublicV1WorkerClaimRoute
+  '/api/public/v1/checkout/$sessionId/status': typeof ApiPublicV1CheckoutSessionIdStatusRoute
+  '/api/public/v1/worker/jobs/$jobId/heartbeat': typeof ApiPublicV1WorkerJobsJobIdHeartbeatRoute
+  '/api/public/v1/worker/jobs/$jobId/result': typeof ApiPublicV1WorkerJobsJobIdResultRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/docs'
+    | '/admin/clients'
+    | '/admin/providers'
+    | '/admin/transactions'
+    | '/admin/workers'
+    | '/admin/'
+    | '/checkout/$sessionId/'
+    | '/checkout/$sessionId/api/mark-redirected'
+    | '/checkout/$sessionId/api/poll'
+    | '/api/public/v1/checkout/initialize'
+    | '/api/public/v1/provider-callback/$sessionId'
+    | '/api/public/v1/worker/claim'
+    | '/api/public/v1/checkout/$sessionId/status'
+    | '/api/public/v1/worker/jobs/$jobId/heartbeat'
+    | '/api/public/v1/worker/jobs/$jobId/result'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/auth'
+    | '/docs'
+    | '/admin/clients'
+    | '/admin/providers'
+    | '/admin/transactions'
+    | '/admin/workers'
+    | '/admin'
+    | '/checkout/$sessionId'
+    | '/checkout/$sessionId/api/mark-redirected'
+    | '/checkout/$sessionId/api/poll'
+    | '/api/public/v1/checkout/initialize'
+    | '/api/public/v1/provider-callback/$sessionId'
+    | '/api/public/v1/worker/claim'
+    | '/api/public/v1/checkout/$sessionId/status'
+    | '/api/public/v1/worker/jobs/$jobId/heartbeat'
+    | '/api/public/v1/worker/jobs/$jobId/result'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/auth'
+    | '/docs'
+    | '/_authenticated/admin/clients'
+    | '/_authenticated/admin/providers'
+    | '/_authenticated/admin/transactions'
+    | '/_authenticated/admin/workers'
+    | '/_authenticated/admin/'
+    | '/checkout/$sessionId/'
+    | '/checkout/$sessionId/api/mark-redirected'
+    | '/checkout/$sessionId/api/poll'
+    | '/api/public/v1/checkout/initialize'
+    | '/api/public/v1/provider-callback/$sessionId'
+    | '/api/public/v1/worker/claim'
+    | '/api/public/v1/checkout/$sessionId/status'
+    | '/api/public/v1/worker/jobs/$jobId/heartbeat'
+    | '/api/public/v1/worker/jobs/$jobId/result'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AuthRoute: typeof AuthRoute
+  DocsRoute: typeof DocsRoute
+  CheckoutSessionIdIndexRoute: typeof CheckoutSessionIdIndexRoute
+  CheckoutSessionIdApiMarkRedirectedRoute: typeof CheckoutSessionIdApiMarkRedirectedRoute
+  CheckoutSessionIdApiPollRoute: typeof CheckoutSessionIdApiPollRoute
+  ApiPublicV1CheckoutInitializeRoute: typeof ApiPublicV1CheckoutInitializeRoute
+  ApiPublicV1ProviderCallbackSessionIdRoute: typeof ApiPublicV1ProviderCallbackSessionIdRoute
+  ApiPublicV1WorkerClaimRoute: typeof ApiPublicV1WorkerClaimRoute
+  ApiPublicV1CheckoutSessionIdStatusRoute: typeof ApiPublicV1CheckoutSessionIdStatusRoute
+  ApiPublicV1WorkerJobsJobIdHeartbeatRoute: typeof ApiPublicV1WorkerJobsJobIdHeartbeatRoute
+  ApiPublicV1WorkerJobsJobIdResultRoute: typeof ApiPublicV1WorkerJobsJobIdResultRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/docs': {
+      id: '/docs'
+      path: '/docs'
+      fullPath: '/docs'
+      preLoaderRoute: typeof DocsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,22 +295,145 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/checkout/$sessionId/': {
+      id: '/checkout/$sessionId/'
+      path: '/checkout/$sessionId'
+      fullPath: '/checkout/$sessionId/'
+      preLoaderRoute: typeof CheckoutSessionIdIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/admin/': {
+      id: '/_authenticated/admin/'
+      path: '/admin'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/workers': {
+      id: '/_authenticated/admin/workers'
+      path: '/admin/workers'
+      fullPath: '/admin/workers'
+      preLoaderRoute: typeof AuthenticatedAdminWorkersRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/transactions': {
+      id: '/_authenticated/admin/transactions'
+      path: '/admin/transactions'
+      fullPath: '/admin/transactions'
+      preLoaderRoute: typeof AuthenticatedAdminTransactionsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/providers': {
+      id: '/_authenticated/admin/providers'
+      path: '/admin/providers'
+      fullPath: '/admin/providers'
+      preLoaderRoute: typeof AuthenticatedAdminProvidersRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/clients': {
+      id: '/_authenticated/admin/clients'
+      path: '/admin/clients'
+      fullPath: '/admin/clients'
+      preLoaderRoute: typeof AuthenticatedAdminClientsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/checkout/$sessionId/api/poll': {
+      id: '/checkout/$sessionId/api/poll'
+      path: '/checkout/$sessionId/api/poll'
+      fullPath: '/checkout/$sessionId/api/poll'
+      preLoaderRoute: typeof CheckoutSessionIdApiPollRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/checkout/$sessionId/api/mark-redirected': {
+      id: '/checkout/$sessionId/api/mark-redirected'
+      path: '/checkout/$sessionId/api/mark-redirected'
+      fullPath: '/checkout/$sessionId/api/mark-redirected'
+      preLoaderRoute: typeof CheckoutSessionIdApiMarkRedirectedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/v1/worker/claim': {
+      id: '/api/public/v1/worker/claim'
+      path: '/api/public/v1/worker/claim'
+      fullPath: '/api/public/v1/worker/claim'
+      preLoaderRoute: typeof ApiPublicV1WorkerClaimRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/v1/provider-callback/$sessionId': {
+      id: '/api/public/v1/provider-callback/$sessionId'
+      path: '/api/public/v1/provider-callback/$sessionId'
+      fullPath: '/api/public/v1/provider-callback/$sessionId'
+      preLoaderRoute: typeof ApiPublicV1ProviderCallbackSessionIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/v1/checkout/initialize': {
+      id: '/api/public/v1/checkout/initialize'
+      path: '/api/public/v1/checkout/initialize'
+      fullPath: '/api/public/v1/checkout/initialize'
+      preLoaderRoute: typeof ApiPublicV1CheckoutInitializeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/v1/checkout/$sessionId/status': {
+      id: '/api/public/v1/checkout/$sessionId/status'
+      path: '/api/public/v1/checkout/$sessionId/status'
+      fullPath: '/api/public/v1/checkout/$sessionId/status'
+      preLoaderRoute: typeof ApiPublicV1CheckoutSessionIdStatusRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/v1/worker/jobs/$jobId/result': {
+      id: '/api/public/v1/worker/jobs/$jobId/result'
+      path: '/api/public/v1/worker/jobs/$jobId/result'
+      fullPath: '/api/public/v1/worker/jobs/$jobId/result'
+      preLoaderRoute: typeof ApiPublicV1WorkerJobsJobIdResultRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/v1/worker/jobs/$jobId/heartbeat': {
+      id: '/api/public/v1/worker/jobs/$jobId/heartbeat'
+      path: '/api/public/v1/worker/jobs/$jobId/heartbeat'
+      fullPath: '/api/public/v1/worker/jobs/$jobId/heartbeat'
+      preLoaderRoute: typeof ApiPublicV1WorkerJobsJobIdHeartbeatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAdminClientsRoute: typeof AuthenticatedAdminClientsRoute
+  AuthenticatedAdminProvidersRoute: typeof AuthenticatedAdminProvidersRoute
+  AuthenticatedAdminTransactionsRoute: typeof AuthenticatedAdminTransactionsRoute
+  AuthenticatedAdminWorkersRoute: typeof AuthenticatedAdminWorkersRoute
+  AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAdminClientsRoute: AuthenticatedAdminClientsRoute,
+  AuthenticatedAdminProvidersRoute: AuthenticatedAdminProvidersRoute,
+  AuthenticatedAdminTransactionsRoute: AuthenticatedAdminTransactionsRoute,
+  AuthenticatedAdminWorkersRoute: AuthenticatedAdminWorkersRoute,
+  AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AuthRoute: AuthRoute,
+  DocsRoute: DocsRoute,
+  CheckoutSessionIdIndexRoute: CheckoutSessionIdIndexRoute,
+  CheckoutSessionIdApiMarkRedirectedRoute:
+    CheckoutSessionIdApiMarkRedirectedRoute,
+  CheckoutSessionIdApiPollRoute: CheckoutSessionIdApiPollRoute,
+  ApiPublicV1CheckoutInitializeRoute: ApiPublicV1CheckoutInitializeRoute,
+  ApiPublicV1ProviderCallbackSessionIdRoute:
+    ApiPublicV1ProviderCallbackSessionIdRoute,
+  ApiPublicV1WorkerClaimRoute: ApiPublicV1WorkerClaimRoute,
+  ApiPublicV1CheckoutSessionIdStatusRoute:
+    ApiPublicV1CheckoutSessionIdStatusRoute,
+  ApiPublicV1WorkerJobsJobIdHeartbeatRoute:
+    ApiPublicV1WorkerJobsJobIdHeartbeatRoute,
+  ApiPublicV1WorkerJobsJobIdResultRoute: ApiPublicV1WorkerJobsJobIdResultRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
