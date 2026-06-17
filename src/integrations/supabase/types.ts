@@ -242,8 +242,10 @@ export type Database = {
           initialized_at: string
           metadata: Json
           payment_method_target: string
+          provider_callback_token: string | null
           provider_id: string
           provider_reference: string | null
+          redirected_at: string | null
           smm_transaction_id: string
           status: Database["public"]["Enums"]["txn_status"]
           updated_at: string
@@ -265,8 +267,10 @@ export type Database = {
           initialized_at?: string
           metadata?: Json
           payment_method_target?: string
+          provider_callback_token?: string | null
           provider_id: string
           provider_reference?: string | null
+          redirected_at?: string | null
           smm_transaction_id: string
           status?: Database["public"]["Enums"]["txn_status"]
           updated_at?: string
@@ -288,8 +292,10 @@ export type Database = {
           initialized_at?: string
           metadata?: Json
           payment_method_target?: string
+          provider_callback_token?: string | null
           provider_id?: string
           provider_reference?: string | null
+          redirected_at?: string | null
           smm_transaction_id?: string
           status?: Database["public"]["Enums"]["txn_status"]
           updated_at?: string
