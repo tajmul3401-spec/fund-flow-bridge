@@ -32,8 +32,17 @@ function GatewayPage() {
   const [polls, setPolls] = useState(0);
   const [iframeLoads, setIframeLoads] = useState(0);
   const [finishing, setFinishing] = useState(false);
+  const [countdown, setCountdown] = useState(10);
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const markedRedirectedRef = useRef(false);
+
+  // 10-second countdown shown while preparing checkout
+  useEffect(() => {
+    if (data?.checkout_url || finishing) return;
+    if (countdown <= 0) return;
+    const t = setTimeout(() => setCountdown(c => c - 1), 1000);
+    return () => clearTimeout(t);
+  }, [countdown, data?.checkout_url, finishing]);
 
   // Poll status until checkout_url is ready
   useEffect(() => {
@@ -132,7 +141,15 @@ function GatewayPage() {
         {!failed && (
           <>
             <div className="my-8 flex justify-center">
-              <div className="h-10 w-10 animate-spin rounded-full border-4 border-muted border-t-primary" />
+              {finishing ? (
+                <div className="h-10 w-10 animate-spin rounded-full border-4 border-muted border-t-primary" />
+              ) : (
+                <div className="flex h-24 w-24 items-center justify-center rounded-full border-4 border-primary/20">
+                  <span className="text-3xl font-semibold tabular-nums text-primary">
+                    {countdown}
+                  </span>
+                </div>
+              )}
             </div>
             <p className="text-sm text-muted-foreground">
               {finishing ? "Finalizing your payment…" : "Preparing your secure checkout…"}
@@ -140,9 +157,9 @@ function GatewayPage() {
             <p className="mt-2 text-xs text-muted-foreground">
               Please don't close this window.
             </p>
-            {polls > 12 && !finishing && (
+            {countdown === 0 && !finishing && (
               <p className="mt-4 text-xs text-muted-foreground">
-                Taking longer than usual.
+                Taking longer than usual… ({polls} checks)
               </p>
             )}
           </>
