@@ -22,6 +22,7 @@ import { Route as AuthenticatedAdminProvidersRouteImport } from './routes/_authe
 import { Route as AuthenticatedAdminClientsRouteImport } from './routes/_authenticated/admin/clients'
 import { Route as CheckoutSessionIdApiPollRouteImport } from './routes/checkout/$sessionId/api/poll'
 import { Route as CheckoutSessionIdApiMarkRedirectedRouteImport } from './routes/checkout/$sessionId/api/mark-redirected'
+import { Route as CheckoutSessionIdApiCancelRouteImport } from './routes/checkout/$sessionId/api/cancel'
 import { Route as ApiPublicV1WorkerClaimRouteImport } from './routes/api/public/v1/worker/claim'
 import { Route as ApiPublicV1ProviderCallbackSessionIdRouteImport } from './routes/api/public/v1/provider-callback/$sessionId'
 import { Route as ApiPublicV1CheckoutInitializeRouteImport } from './routes/api/public/v1/checkout/initialize'
@@ -99,6 +100,12 @@ const CheckoutSessionIdApiMarkRedirectedRoute =
     path: '/checkout/$sessionId/api/mark-redirected',
     getParentRoute: () => rootRouteImport,
   } as any)
+const CheckoutSessionIdApiCancelRoute =
+  CheckoutSessionIdApiCancelRouteImport.update({
+    id: '/checkout/$sessionId/api/cancel',
+    path: '/checkout/$sessionId/api/cancel',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicV1WorkerClaimRoute = ApiPublicV1WorkerClaimRouteImport.update({
   id: '/api/public/v1/worker/claim',
   path: '/api/public/v1/worker/claim',
@@ -146,6 +153,7 @@ export interface FileRoutesByFullPath {
   '/admin/workers': typeof AuthenticatedAdminWorkersRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/checkout/$sessionId/': typeof CheckoutSessionIdIndexRoute
+  '/checkout/$sessionId/api/cancel': typeof CheckoutSessionIdApiCancelRoute
   '/checkout/$sessionId/api/mark-redirected': typeof CheckoutSessionIdApiMarkRedirectedRoute
   '/checkout/$sessionId/api/poll': typeof CheckoutSessionIdApiPollRoute
   '/api/public/v1/checkout/initialize': typeof ApiPublicV1CheckoutInitializeRoute
@@ -166,6 +174,7 @@ export interface FileRoutesByTo {
   '/admin/workers': typeof AuthenticatedAdminWorkersRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/checkout/$sessionId': typeof CheckoutSessionIdIndexRoute
+  '/checkout/$sessionId/api/cancel': typeof CheckoutSessionIdApiCancelRoute
   '/checkout/$sessionId/api/mark-redirected': typeof CheckoutSessionIdApiMarkRedirectedRoute
   '/checkout/$sessionId/api/poll': typeof CheckoutSessionIdApiPollRoute
   '/api/public/v1/checkout/initialize': typeof ApiPublicV1CheckoutInitializeRoute
@@ -188,6 +197,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/workers': typeof AuthenticatedAdminWorkersRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/checkout/$sessionId/': typeof CheckoutSessionIdIndexRoute
+  '/checkout/$sessionId/api/cancel': typeof CheckoutSessionIdApiCancelRoute
   '/checkout/$sessionId/api/mark-redirected': typeof CheckoutSessionIdApiMarkRedirectedRoute
   '/checkout/$sessionId/api/poll': typeof CheckoutSessionIdApiPollRoute
   '/api/public/v1/checkout/initialize': typeof ApiPublicV1CheckoutInitializeRoute
@@ -210,6 +220,7 @@ export interface FileRouteTypes {
     | '/admin/workers'
     | '/admin/'
     | '/checkout/$sessionId/'
+    | '/checkout/$sessionId/api/cancel'
     | '/checkout/$sessionId/api/mark-redirected'
     | '/checkout/$sessionId/api/poll'
     | '/api/public/v1/checkout/initialize'
@@ -230,6 +241,7 @@ export interface FileRouteTypes {
     | '/admin/workers'
     | '/admin'
     | '/checkout/$sessionId'
+    | '/checkout/$sessionId/api/cancel'
     | '/checkout/$sessionId/api/mark-redirected'
     | '/checkout/$sessionId/api/poll'
     | '/api/public/v1/checkout/initialize'
@@ -251,6 +263,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/workers'
     | '/_authenticated/admin/'
     | '/checkout/$sessionId/'
+    | '/checkout/$sessionId/api/cancel'
     | '/checkout/$sessionId/api/mark-redirected'
     | '/checkout/$sessionId/api/poll'
     | '/api/public/v1/checkout/initialize'
@@ -267,6 +280,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   DocsRoute: typeof DocsRoute
   CheckoutSessionIdIndexRoute: typeof CheckoutSessionIdIndexRoute
+  CheckoutSessionIdApiCancelRoute: typeof CheckoutSessionIdApiCancelRoute
   CheckoutSessionIdApiMarkRedirectedRoute: typeof CheckoutSessionIdApiMarkRedirectedRoute
   CheckoutSessionIdApiPollRoute: typeof CheckoutSessionIdApiPollRoute
   ApiPublicV1CheckoutInitializeRoute: typeof ApiPublicV1CheckoutInitializeRoute
@@ -370,6 +384,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CheckoutSessionIdApiMarkRedirectedRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/checkout/$sessionId/api/cancel': {
+      id: '/checkout/$sessionId/api/cancel'
+      path: '/checkout/$sessionId/api/cancel'
+      fullPath: '/checkout/$sessionId/api/cancel'
+      preLoaderRoute: typeof CheckoutSessionIdApiCancelRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/v1/worker/claim': {
       id: '/api/public/v1/worker/claim'
       path: '/api/public/v1/worker/claim'
@@ -442,6 +463,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   DocsRoute: DocsRoute,
   CheckoutSessionIdIndexRoute: CheckoutSessionIdIndexRoute,
+  CheckoutSessionIdApiCancelRoute: CheckoutSessionIdApiCancelRoute,
   CheckoutSessionIdApiMarkRedirectedRoute:
     CheckoutSessionIdApiMarkRedirectedRoute,
   CheckoutSessionIdApiPollRoute: CheckoutSessionIdApiPollRoute,

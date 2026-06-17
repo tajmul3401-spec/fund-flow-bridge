@@ -6,6 +6,7 @@ export type WebhookEvent =
   | "transaction.redirected"
   | "transaction.completed"
   | "transaction.failed"
+  | "transaction.cancelled"
   | "transaction.pending_manual_audit";
 
 const MAX_ATTEMPTS = 6;

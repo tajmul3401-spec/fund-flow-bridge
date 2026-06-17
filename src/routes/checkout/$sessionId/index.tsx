@@ -68,28 +68,38 @@ function GatewayPage() {
     return () => { stopped = true; clearTimeout(timer); };
   }, [sessionId, data?.checkout_url]);
 
-  // When iframe loads more than once, the user has either paid or cancelled
-  // (gateway navigated to its own success/cancel URL). Finish the session.
+  // Finalize: poll once, then bounce to merchant return_url. Used both for
+  // detected iframe navigation (2nd load) AND for our own Cancel button.
+  async function finalize(opts?: { userCancelled?: boolean }) {
+    if (finishing) return;
+    setFinishing(true);
+    try {
+      if (opts?.userCancelled) {
+        await fetch(`/checkout/${sessionId}/api/cancel`, { method: "POST" }).catch(() => {});
+      } else {
+        // Give a true success callback a moment to land
+        await new Promise(r => setTimeout(r, 1500));
+      }
+      const res = await fetch(`/checkout/${sessionId}/api/poll`);
+      const j = res.ok ? ((await res.json()) as Status) : null;
+      const status = j?.status ?? "CANCELLED";
+      const ret = data?.return_url;
+      const target = ret
+        ? `${ret}${ret.includes("?") ? "&" : "?"}apb_session_id=${sessionId}&status=${status}`
+        : "/";
+      window.location.replace(target);
+    } catch {
+      window.location.replace("/");
+    }
+  }
+
+  // 2nd iframe load = provider navigated away (success or cancel). Hide it
+  // immediately so the bestfollows page is NEVER visible, then finalize.
   useEffect(() => {
     if (iframeLoads < 2 || finishing) return;
-    setFinishing(true);
-    (async () => {
-      try {
-        // Wait briefly so a true success callback can mark the txn COMPLETED
-        await new Promise(r => setTimeout(r, 1500));
-        const res = await fetch(`/checkout/${sessionId}/api/poll`);
-        const j = res.ok ? ((await res.json()) as Status) : null;
-        const status = j?.status ?? "CANCELLED";
-        const ret = data?.return_url;
-        const target = ret
-          ? `${ret}${ret.includes("?") ? "&" : "?"}apb_session_id=${sessionId}&status=${status}`
-          : "/";
-        window.location.replace(target);
-      } catch {
-        window.location.replace("/");
-      }
-    })();
-  }, [iframeLoads, finishing, sessionId, data?.return_url]);
+    finalize();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [iframeLoads]);
 
   const handleIframeLoad = () => {
     if (!markedRedirectedRef.current && data?.checkout_url) {
@@ -101,7 +111,9 @@ function GatewayPage() {
 
   const failed = data?.status === "FAILED" || data?.status === "CANCELLED";
 
-  // Once checkout_url is available, render full-screen branded iframe
+  // Once checkout_url is available, render full-screen branded iframe.
+  // The instant `finishing` flips, we re-render and the iframe unmounts —
+  // so the provider's cancel/success page never gets a frame on screen.
   if (data?.checkout_url && !failed && !finishing) {
     return (
       <div className="fixed inset-0 flex flex-col bg-background">
@@ -112,9 +124,22 @@ function GatewayPage() {
             )}
             <span className="text-sm font-medium text-foreground">{data.brand_name}</span>
           </div>
-          <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
-            Secure · {sessionId.slice(-8)}
-          </span>
+          <div className="flex items-center gap-3">
+            <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
+              Secure · {sessionId.slice(-8)}
+            </span>
+            <button
+              type="button"
+              onClick={() => {
+                if (confirm("Cancel this payment and return to the merchant?")) {
+                  finalize({ userCancelled: true });
+                }
+              }}
+              className="rounded-md border border-border bg-background px-3 py-1 text-xs font-medium text-foreground hover:bg-muted"
+            >
+              Cancel Payment
+            </button>
+          </div>
         </div>
         <iframe
           ref={iframeRef}
@@ -124,7 +149,7 @@ function GatewayPage() {
           className="flex-1 w-full border-0 bg-white"
           allow="payment *; clipboard-write"
           referrerPolicy="no-referrer"
-          sandbox="allow-forms allow-scripts allow-same-origin allow-popups allow-top-navigation-by-user-activation"
+          sandbox="allow-forms allow-scripts allow-same-origin allow-popups"
         />
       </div>
     );
