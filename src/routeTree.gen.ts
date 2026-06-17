@@ -9,8 +9,16 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as DocsRouteImport } from './routes/docs'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CheckoutSessionIdIndexRouteImport } from './routes/checkout/$sessionId/index'
+import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
+import { Route as AuthenticatedAdminWorkersRouteImport } from './routes/_authenticated/admin/workers'
+import { Route as AuthenticatedAdminTransactionsRouteImport } from './routes/_authenticated/admin/transactions'
+import { Route as AuthenticatedAdminProvidersRouteImport } from './routes/_authenticated/admin/providers'
+import { Route as AuthenticatedAdminClientsRouteImport } from './routes/_authenticated/admin/clients'
 import { Route as CheckoutSessionIdApiPollRouteImport } from './routes/checkout/$sessionId/api/poll'
 import { Route as CheckoutSessionIdApiMarkRedirectedRouteImport } from './routes/checkout/$sessionId/api/mark-redirected'
 import { Route as ApiPublicV1WorkerClaimRouteImport } from './routes/api/public/v1/worker/claim'
@@ -20,6 +28,20 @@ import { Route as ApiPublicV1CheckoutSessionIdStatusRouteImport } from './routes
 import { Route as ApiPublicV1WorkerJobsJobIdResultRouteImport } from './routes/api/public/v1/worker/jobs/$jobId/result'
 import { Route as ApiPublicV1WorkerJobsJobIdHeartbeatRouteImport } from './routes/api/public/v1/worker/jobs/$jobId/heartbeat'
 
+const DocsRoute = DocsRouteImport.update({
+  id: '/docs',
+  path: '/docs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -30,6 +52,35 @@ const CheckoutSessionIdIndexRoute = CheckoutSessionIdIndexRouteImport.update({
   path: '/checkout/$sessionId/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
+  id: '/admin/',
+  path: '/admin/',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAdminWorkersRoute =
+  AuthenticatedAdminWorkersRouteImport.update({
+    id: '/admin/workers',
+    path: '/admin/workers',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdminTransactionsRoute =
+  AuthenticatedAdminTransactionsRouteImport.update({
+    id: '/admin/transactions',
+    path: '/admin/transactions',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdminProvidersRoute =
+  AuthenticatedAdminProvidersRouteImport.update({
+    id: '/admin/providers',
+    path: '/admin/providers',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdminClientsRoute =
+  AuthenticatedAdminClientsRouteImport.update({
+    id: '/admin/clients',
+    path: '/admin/clients',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const CheckoutSessionIdApiPollRoute =
   CheckoutSessionIdApiPollRouteImport.update({
     id: '/checkout/$sessionId/api/poll',
@@ -80,6 +131,13 @@ const ApiPublicV1WorkerJobsJobIdHeartbeatRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/docs': typeof DocsRoute
+  '/admin/clients': typeof AuthenticatedAdminClientsRoute
+  '/admin/providers': typeof AuthenticatedAdminProvidersRoute
+  '/admin/transactions': typeof AuthenticatedAdminTransactionsRoute
+  '/admin/workers': typeof AuthenticatedAdminWorkersRoute
+  '/admin/': typeof AuthenticatedAdminIndexRoute
   '/checkout/$sessionId/': typeof CheckoutSessionIdIndexRoute
   '/checkout/$sessionId/api/mark-redirected': typeof CheckoutSessionIdApiMarkRedirectedRoute
   '/checkout/$sessionId/api/poll': typeof CheckoutSessionIdApiPollRoute
@@ -92,6 +150,13 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/docs': typeof DocsRoute
+  '/admin/clients': typeof AuthenticatedAdminClientsRoute
+  '/admin/providers': typeof AuthenticatedAdminProvidersRoute
+  '/admin/transactions': typeof AuthenticatedAdminTransactionsRoute
+  '/admin/workers': typeof AuthenticatedAdminWorkersRoute
+  '/admin': typeof AuthenticatedAdminIndexRoute
   '/checkout/$sessionId': typeof CheckoutSessionIdIndexRoute
   '/checkout/$sessionId/api/mark-redirected': typeof CheckoutSessionIdApiMarkRedirectedRoute
   '/checkout/$sessionId/api/poll': typeof CheckoutSessionIdApiPollRoute
@@ -105,6 +170,14 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/auth': typeof AuthRoute
+  '/docs': typeof DocsRoute
+  '/_authenticated/admin/clients': typeof AuthenticatedAdminClientsRoute
+  '/_authenticated/admin/providers': typeof AuthenticatedAdminProvidersRoute
+  '/_authenticated/admin/transactions': typeof AuthenticatedAdminTransactionsRoute
+  '/_authenticated/admin/workers': typeof AuthenticatedAdminWorkersRoute
+  '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/checkout/$sessionId/': typeof CheckoutSessionIdIndexRoute
   '/checkout/$sessionId/api/mark-redirected': typeof CheckoutSessionIdApiMarkRedirectedRoute
   '/checkout/$sessionId/api/poll': typeof CheckoutSessionIdApiPollRoute
@@ -119,6 +192,13 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/auth'
+    | '/docs'
+    | '/admin/clients'
+    | '/admin/providers'
+    | '/admin/transactions'
+    | '/admin/workers'
+    | '/admin/'
     | '/checkout/$sessionId/'
     | '/checkout/$sessionId/api/mark-redirected'
     | '/checkout/$sessionId/api/poll'
@@ -131,6 +211,13 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/auth'
+    | '/docs'
+    | '/admin/clients'
+    | '/admin/providers'
+    | '/admin/transactions'
+    | '/admin/workers'
+    | '/admin'
     | '/checkout/$sessionId'
     | '/checkout/$sessionId/api/mark-redirected'
     | '/checkout/$sessionId/api/poll'
@@ -143,6 +230,14 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/_authenticated'
+    | '/auth'
+    | '/docs'
+    | '/_authenticated/admin/clients'
+    | '/_authenticated/admin/providers'
+    | '/_authenticated/admin/transactions'
+    | '/_authenticated/admin/workers'
+    | '/_authenticated/admin/'
     | '/checkout/$sessionId/'
     | '/checkout/$sessionId/api/mark-redirected'
     | '/checkout/$sessionId/api/poll'
@@ -156,6 +251,9 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AuthRoute: typeof AuthRoute
+  DocsRoute: typeof DocsRoute
   CheckoutSessionIdIndexRoute: typeof CheckoutSessionIdIndexRoute
   CheckoutSessionIdApiMarkRedirectedRoute: typeof CheckoutSessionIdApiMarkRedirectedRoute
   CheckoutSessionIdApiPollRoute: typeof CheckoutSessionIdApiPollRoute
@@ -169,6 +267,27 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/docs': {
+      id: '/docs'
+      path: '/docs'
+      fullPath: '/docs'
+      preLoaderRoute: typeof DocsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -182,6 +301,41 @@ declare module '@tanstack/react-router' {
       fullPath: '/checkout/$sessionId/'
       preLoaderRoute: typeof CheckoutSessionIdIndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/admin/': {
+      id: '/_authenticated/admin/'
+      path: '/admin'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/workers': {
+      id: '/_authenticated/admin/workers'
+      path: '/admin/workers'
+      fullPath: '/admin/workers'
+      preLoaderRoute: typeof AuthenticatedAdminWorkersRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/transactions': {
+      id: '/_authenticated/admin/transactions'
+      path: '/admin/transactions'
+      fullPath: '/admin/transactions'
+      preLoaderRoute: typeof AuthenticatedAdminTransactionsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/providers': {
+      id: '/_authenticated/admin/providers'
+      path: '/admin/providers'
+      fullPath: '/admin/providers'
+      preLoaderRoute: typeof AuthenticatedAdminProvidersRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/clients': {
+      id: '/_authenticated/admin/clients'
+      path: '/admin/clients'
+      fullPath: '/admin/clients'
+      preLoaderRoute: typeof AuthenticatedAdminClientsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/checkout/$sessionId/api/poll': {
       id: '/checkout/$sessionId/api/poll'
@@ -242,8 +396,30 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAdminClientsRoute: typeof AuthenticatedAdminClientsRoute
+  AuthenticatedAdminProvidersRoute: typeof AuthenticatedAdminProvidersRoute
+  AuthenticatedAdminTransactionsRoute: typeof AuthenticatedAdminTransactionsRoute
+  AuthenticatedAdminWorkersRoute: typeof AuthenticatedAdminWorkersRoute
+  AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAdminClientsRoute: AuthenticatedAdminClientsRoute,
+  AuthenticatedAdminProvidersRoute: AuthenticatedAdminProvidersRoute,
+  AuthenticatedAdminTransactionsRoute: AuthenticatedAdminTransactionsRoute,
+  AuthenticatedAdminWorkersRoute: AuthenticatedAdminWorkersRoute,
+  AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AuthRoute: AuthRoute,
+  DocsRoute: DocsRoute,
   CheckoutSessionIdIndexRoute: CheckoutSessionIdIndexRoute,
   CheckoutSessionIdApiMarkRedirectedRoute:
     CheckoutSessionIdApiMarkRedirectedRoute,
