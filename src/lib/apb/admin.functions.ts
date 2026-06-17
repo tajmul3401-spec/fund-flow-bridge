@@ -161,7 +161,7 @@ export const updateApiClient = createServerFn({ method: "POST" })
     for (const [k, v] of Object.entries(rest)) if (v !== undefined && v !== "") upd[k] = v;
     if (rest.brand_logo_url === "") upd.brand_logo_url = null;
     if (rest.default_provider_id === "") upd.default_provider_id = null;
-    const { error } = await supabaseAdmin.from("api_clients").update(upd).eq("id", id);
+    const { error } = await supabaseAdmin.from("api_clients").update(upd as never).eq("id", id);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
