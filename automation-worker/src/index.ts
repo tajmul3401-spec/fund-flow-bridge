@@ -117,16 +117,32 @@ async function captureCheckoutUrl(page: Page, job: Job): Promise<string> {
   }
   for (const sel of cfg.gateway_selector_chain ?? []) {
     await page.waitForSelector(sel, { timeout: 10_000 });
-    await Promise.all([
-      page.waitForLoadState("domcontentloaded").catch(() => {}),
-      page.click(sel),
-    ]);
+    await page.click(sel);
   }
+
+  // Wait for a specific element on the final page (e.g. card number input)
+  if (cfg.wait_for_selector) {
+    await page.waitForSelector(cfg.wait_for_selector, { timeout: 15_000 });
+  }
+
+  // Poll URL until it contains the expected substring (handles redirects)
+  if (cfg.final_url_contains) {
+    const timeout = cfg.final_url_timeout_ms ?? 30_000;
+    const deadline = Date.now() + timeout;
+    while (Date.now() < deadline) {
+      const url = page.url();
+      if (url.includes(cfg.final_url_contains)) return url;
+      await new Promise(r => setTimeout(r, 500));
+    }
+    throw new Error(`Timeout waiting for URL to contain "${cfg.final_url_contains}". Current: ${page.url()}`);
+  }
+
   if (cfg.final_url_capture) {
     const el = await page.waitForSelector(cfg.final_url_capture, { timeout: 15_000 });
     const src = await el.getAttribute("src");
     if (src) return src;
   }
+
   // Fallback: current URL
   return page.url();
 }
