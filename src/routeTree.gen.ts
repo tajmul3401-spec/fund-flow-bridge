@@ -10,33 +10,120 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiPublicV1WorkerClaimRouteImport } from './routes/api/public/v1/worker/claim'
+import { Route as ApiPublicV1ProviderCallbackSessionIdRouteImport } from './routes/api/public/v1/provider-callback/$sessionId'
+import { Route as ApiPublicV1CheckoutInitializeRouteImport } from './routes/api/public/v1/checkout/initialize'
+import { Route as ApiPublicV1CheckoutSessionIdStatusRouteImport } from './routes/api/public/v1/checkout/$sessionId/status'
+import { Route as ApiPublicV1WorkerJobsJobIdResultRouteImport } from './routes/api/public/v1/worker/jobs/$jobId/result'
+import { Route as ApiPublicV1WorkerJobsJobIdHeartbeatRouteImport } from './routes/api/public/v1/worker/jobs/$jobId/heartbeat'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicV1WorkerClaimRoute = ApiPublicV1WorkerClaimRouteImport.update({
+  id: '/api/public/v1/worker/claim',
+  path: '/api/public/v1/worker/claim',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicV1ProviderCallbackSessionIdRoute =
+  ApiPublicV1ProviderCallbackSessionIdRouteImport.update({
+    id: '/api/public/v1/provider-callback/$sessionId',
+    path: '/api/public/v1/provider-callback/$sessionId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicV1CheckoutInitializeRoute =
+  ApiPublicV1CheckoutInitializeRouteImport.update({
+    id: '/api/public/v1/checkout/initialize',
+    path: '/api/public/v1/checkout/initialize',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicV1CheckoutSessionIdStatusRoute =
+  ApiPublicV1CheckoutSessionIdStatusRouteImport.update({
+    id: '/api/public/v1/checkout/$sessionId/status',
+    path: '/api/public/v1/checkout/$sessionId/status',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicV1WorkerJobsJobIdResultRoute =
+  ApiPublicV1WorkerJobsJobIdResultRouteImport.update({
+    id: '/api/public/v1/worker/jobs/$jobId/result',
+    path: '/api/public/v1/worker/jobs/$jobId/result',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicV1WorkerJobsJobIdHeartbeatRoute =
+  ApiPublicV1WorkerJobsJobIdHeartbeatRouteImport.update({
+    id: '/api/public/v1/worker/jobs/$jobId/heartbeat',
+    path: '/api/public/v1/worker/jobs/$jobId/heartbeat',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/api/public/v1/checkout/initialize': typeof ApiPublicV1CheckoutInitializeRoute
+  '/api/public/v1/provider-callback/$sessionId': typeof ApiPublicV1ProviderCallbackSessionIdRoute
+  '/api/public/v1/worker/claim': typeof ApiPublicV1WorkerClaimRoute
+  '/api/public/v1/checkout/$sessionId/status': typeof ApiPublicV1CheckoutSessionIdStatusRoute
+  '/api/public/v1/worker/jobs/$jobId/heartbeat': typeof ApiPublicV1WorkerJobsJobIdHeartbeatRoute
+  '/api/public/v1/worker/jobs/$jobId/result': typeof ApiPublicV1WorkerJobsJobIdResultRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/api/public/v1/checkout/initialize': typeof ApiPublicV1CheckoutInitializeRoute
+  '/api/public/v1/provider-callback/$sessionId': typeof ApiPublicV1ProviderCallbackSessionIdRoute
+  '/api/public/v1/worker/claim': typeof ApiPublicV1WorkerClaimRoute
+  '/api/public/v1/checkout/$sessionId/status': typeof ApiPublicV1CheckoutSessionIdStatusRoute
+  '/api/public/v1/worker/jobs/$jobId/heartbeat': typeof ApiPublicV1WorkerJobsJobIdHeartbeatRoute
+  '/api/public/v1/worker/jobs/$jobId/result': typeof ApiPublicV1WorkerJobsJobIdResultRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/api/public/v1/checkout/initialize': typeof ApiPublicV1CheckoutInitializeRoute
+  '/api/public/v1/provider-callback/$sessionId': typeof ApiPublicV1ProviderCallbackSessionIdRoute
+  '/api/public/v1/worker/claim': typeof ApiPublicV1WorkerClaimRoute
+  '/api/public/v1/checkout/$sessionId/status': typeof ApiPublicV1CheckoutSessionIdStatusRoute
+  '/api/public/v1/worker/jobs/$jobId/heartbeat': typeof ApiPublicV1WorkerJobsJobIdHeartbeatRoute
+  '/api/public/v1/worker/jobs/$jobId/result': typeof ApiPublicV1WorkerJobsJobIdResultRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/api/public/v1/checkout/initialize'
+    | '/api/public/v1/provider-callback/$sessionId'
+    | '/api/public/v1/worker/claim'
+    | '/api/public/v1/checkout/$sessionId/status'
+    | '/api/public/v1/worker/jobs/$jobId/heartbeat'
+    | '/api/public/v1/worker/jobs/$jobId/result'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/api/public/v1/checkout/initialize'
+    | '/api/public/v1/provider-callback/$sessionId'
+    | '/api/public/v1/worker/claim'
+    | '/api/public/v1/checkout/$sessionId/status'
+    | '/api/public/v1/worker/jobs/$jobId/heartbeat'
+    | '/api/public/v1/worker/jobs/$jobId/result'
+  id:
+    | '__root__'
+    | '/'
+    | '/api/public/v1/checkout/initialize'
+    | '/api/public/v1/provider-callback/$sessionId'
+    | '/api/public/v1/worker/claim'
+    | '/api/public/v1/checkout/$sessionId/status'
+    | '/api/public/v1/worker/jobs/$jobId/heartbeat'
+    | '/api/public/v1/worker/jobs/$jobId/result'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ApiPublicV1CheckoutInitializeRoute: typeof ApiPublicV1CheckoutInitializeRoute
+  ApiPublicV1ProviderCallbackSessionIdRoute: typeof ApiPublicV1ProviderCallbackSessionIdRoute
+  ApiPublicV1WorkerClaimRoute: typeof ApiPublicV1WorkerClaimRoute
+  ApiPublicV1CheckoutSessionIdStatusRoute: typeof ApiPublicV1CheckoutSessionIdStatusRoute
+  ApiPublicV1WorkerJobsJobIdHeartbeatRoute: typeof ApiPublicV1WorkerJobsJobIdHeartbeatRoute
+  ApiPublicV1WorkerJobsJobIdResultRoute: typeof ApiPublicV1WorkerJobsJobIdResultRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +135,62 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/v1/worker/claim': {
+      id: '/api/public/v1/worker/claim'
+      path: '/api/public/v1/worker/claim'
+      fullPath: '/api/public/v1/worker/claim'
+      preLoaderRoute: typeof ApiPublicV1WorkerClaimRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/v1/provider-callback/$sessionId': {
+      id: '/api/public/v1/provider-callback/$sessionId'
+      path: '/api/public/v1/provider-callback/$sessionId'
+      fullPath: '/api/public/v1/provider-callback/$sessionId'
+      preLoaderRoute: typeof ApiPublicV1ProviderCallbackSessionIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/v1/checkout/initialize': {
+      id: '/api/public/v1/checkout/initialize'
+      path: '/api/public/v1/checkout/initialize'
+      fullPath: '/api/public/v1/checkout/initialize'
+      preLoaderRoute: typeof ApiPublicV1CheckoutInitializeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/v1/checkout/$sessionId/status': {
+      id: '/api/public/v1/checkout/$sessionId/status'
+      path: '/api/public/v1/checkout/$sessionId/status'
+      fullPath: '/api/public/v1/checkout/$sessionId/status'
+      preLoaderRoute: typeof ApiPublicV1CheckoutSessionIdStatusRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/v1/worker/jobs/$jobId/result': {
+      id: '/api/public/v1/worker/jobs/$jobId/result'
+      path: '/api/public/v1/worker/jobs/$jobId/result'
+      fullPath: '/api/public/v1/worker/jobs/$jobId/result'
+      preLoaderRoute: typeof ApiPublicV1WorkerJobsJobIdResultRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/v1/worker/jobs/$jobId/heartbeat': {
+      id: '/api/public/v1/worker/jobs/$jobId/heartbeat'
+      path: '/api/public/v1/worker/jobs/$jobId/heartbeat'
+      fullPath: '/api/public/v1/worker/jobs/$jobId/heartbeat'
+      preLoaderRoute: typeof ApiPublicV1WorkerJobsJobIdHeartbeatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ApiPublicV1CheckoutInitializeRoute: ApiPublicV1CheckoutInitializeRoute,
+  ApiPublicV1ProviderCallbackSessionIdRoute:
+    ApiPublicV1ProviderCallbackSessionIdRoute,
+  ApiPublicV1WorkerClaimRoute: ApiPublicV1WorkerClaimRoute,
+  ApiPublicV1CheckoutSessionIdStatusRoute:
+    ApiPublicV1CheckoutSessionIdStatusRoute,
+  ApiPublicV1WorkerJobsJobIdHeartbeatRoute:
+    ApiPublicV1WorkerJobsJobIdHeartbeatRoute,
+  ApiPublicV1WorkerJobsJobIdResultRoute: ApiPublicV1WorkerJobsJobIdResultRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
