@@ -32,8 +32,17 @@ function GatewayPage() {
   const [polls, setPolls] = useState(0);
   const [iframeLoads, setIframeLoads] = useState(0);
   const [finishing, setFinishing] = useState(false);
+  const [countdown, setCountdown] = useState(10);
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const markedRedirectedRef = useRef(false);
+
+  // 10-second countdown shown while preparing checkout
+  useEffect(() => {
+    if (data?.checkout_url || finishing) return;
+    if (countdown <= 0) return;
+    const t = setTimeout(() => setCountdown(c => c - 1), 1000);
+    return () => clearTimeout(t);
+  }, [countdown, data?.checkout_url, finishing]);
 
   // Poll status until checkout_url is ready
   useEffect(() => {
