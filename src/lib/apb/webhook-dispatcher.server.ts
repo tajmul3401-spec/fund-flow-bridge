@@ -14,7 +14,6 @@ const BACKOFFS_MS = [0, 5_000, 30_000, 2 * 60_000, 10 * 60_000, 60 * 60_000];
 export async function dispatchWebhook(transactionId: string, event: WebhookEvent, payload: Record<string, unknown>) {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-  // Load transaction + client
   const { data: txn } = await supabaseAdmin
     .from("transactions")
     .select("id, api_client_id, apb_session_id")
@@ -41,18 +40,16 @@ export async function dispatchWebhook(transactionId: string, event: WebhookEvent
   });
   const signature = secret ? `sha256=${hmacSha256Hex(secret, body)}` : "";
 
-  // Insert delivery row
   const { data: delivery } = await supabaseAdmin
     .from("webhook_deliveries")
     .insert({
       transaction_id: txn.id,
-      api_client_id: txn.api_client_id,
-      event,
+      url: client.webhook_url,
       payload: JSON.parse(body),
-      target_url: client.webhook_url,
       status: "PENDING",
       attempts: 0,
       max_attempts: MAX_ATTEMPTS,
+      next_attempt_at: new Date().toISOString(),
     })
     .select("id")
     .single();
@@ -63,6 +60,10 @@ export async function dispatchWebhook(transactionId: string, event: WebhookEvent
 async function attemptDelivery(deliveryId: string | undefined, url: string, body: string, signature: string, attempt: number) {
   if (!deliveryId) return;
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const nextAttempt = attempt + 1;
+  const giveUp = nextAttempt >= MAX_ATTEMPTS;
+  const nextAt = giveUp ? new Date(Date.now() + 365 * 24 * 60 * 60_000).toISOString()
+                        : new Date(Date.now() + BACKOFFS_MS[nextAttempt]).toISOString();
   try {
     const ctrl = new AbortController();
     const timeout = setTimeout(() => ctrl.abort(), 15_000);
@@ -81,21 +82,19 @@ async function attemptDelivery(deliveryId: string | undefined, url: string, body
     const ok = res.status >= 200 && res.status < 300;
     const responseText = (await res.text()).slice(0, 2000);
     await supabaseAdmin.from("webhook_deliveries").update({
-      attempts: attempt + 1,
-      status: ok ? "SUCCESS" : (attempt + 1 >= MAX_ATTEMPTS ? "GIVEN_UP" : "FAILED"),
-      response_status: res.status,
-      response_body: responseText,
-      last_attempted_at: new Date().toISOString(),
-      next_attempt_at: ok || attempt + 1 >= MAX_ATTEMPTS ? null : new Date(Date.now() + BACKOFFS_MS[attempt + 1]).toISOString(),
+      attempts: nextAttempt,
+      status: ok ? "SUCCESS" : (giveUp ? "GIVEN_UP" : "FAILED"),
+      last_status_code: res.status,
+      last_response: responseText,
+      next_attempt_at: nextAt,
     }).eq("id", deliveryId);
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     await supabaseAdmin.from("webhook_deliveries").update({
-      attempts: attempt + 1,
-      status: attempt + 1 >= MAX_ATTEMPTS ? "GIVEN_UP" : "FAILED",
-      error: msg,
-      last_attempted_at: new Date().toISOString(),
-      next_attempt_at: attempt + 1 >= MAX_ATTEMPTS ? null : new Date(Date.now() + BACKOFFS_MS[attempt + 1]).toISOString(),
+      attempts: nextAttempt,
+      status: giveUp ? "GIVEN_UP" : "FAILED",
+      last_error: msg,
+      next_attempt_at: nextAt,
     }).eq("id", deliveryId);
   }
 }
