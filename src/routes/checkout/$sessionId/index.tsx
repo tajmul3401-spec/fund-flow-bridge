@@ -1,7 +1,10 @@
-// Public gateway page. Polls status; when checkout_url is ready, redirects (top-level)
-// to the provider's payment page. Brand-masked: shows the SMM panel's brand, not the provider.
+// Public gateway page. Polls status; when checkout_url is ready, embeds the
+// provider's payment page inside an iframe so the user NEVER sees the
+// underlying provider domain (e.g. bestfollows.com). If the gateway iframe
+// navigates away from its initial URL (success OR cancel), we treat the
+// session as finished and bounce the user to the merchant's return URL.
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export const Route = createFileRoute("/checkout/$sessionId/")({
   head: () => ({
@@ -20,14 +23,21 @@ type Status = {
   error_message: string | null;
   brand_name: string;
   brand_logo_url: string | null;
+  return_url?: string | null;
 };
 
 function GatewayPage() {
   const { sessionId } = Route.useParams();
   const [data, setData] = useState<Status | null>(null);
   const [polls, setPolls] = useState(0);
+  const [iframeLoads, setIframeLoads] = useState(0);
+  const [finishing, setFinishing] = useState(false);
+  const iframeRef = useRef<HTMLIFrameElement | null>(null);
+  const markedRedirectedRef = useRef(false);
 
+  // Poll status until checkout_url is ready
   useEffect(() => {
+    if (data?.checkout_url) return;
     let stopped = false;
     let timer: ReturnType<typeof setTimeout>;
     async function tick() {
@@ -37,11 +47,7 @@ function GatewayPage() {
           const j = (await res.json()) as Status;
           if (!stopped) {
             setData(j);
-            if (j.checkout_url && (j.status === "CHECKOUT_READY" || j.status === "REDIRECTED")) {
-              await fetch(`/checkout/${sessionId}/api/mark-redirected`, { method: "POST" });
-              window.location.replace(j.checkout_url);
-              return;
-            }
+            if (j.checkout_url) return; // stop polling, iframe takes over
             if (j.status === "FAILED" || j.status === "CANCELLED") return;
           }
         }
@@ -51,9 +57,69 @@ function GatewayPage() {
     }
     tick();
     return () => { stopped = true; clearTimeout(timer); };
-  }, [sessionId]);
+  }, [sessionId, data?.checkout_url]);
+
+  // When iframe loads more than once, the user has either paid or cancelled
+  // (gateway navigated to its own success/cancel URL). Finish the session.
+  useEffect(() => {
+    if (iframeLoads < 2 || finishing) return;
+    setFinishing(true);
+    (async () => {
+      try {
+        // Wait briefly so a true success callback can mark the txn COMPLETED
+        await new Promise(r => setTimeout(r, 1500));
+        const res = await fetch(`/checkout/${sessionId}/api/poll`);
+        const j = res.ok ? ((await res.json()) as Status) : null;
+        const status = j?.status ?? "CANCELLED";
+        const ret = data?.return_url;
+        const target = ret
+          ? `${ret}${ret.includes("?") ? "&" : "?"}apb_session_id=${sessionId}&status=${status}`
+          : "/";
+        window.location.replace(target);
+      } catch {
+        window.location.replace("/");
+      }
+    })();
+  }, [iframeLoads, finishing, sessionId, data?.return_url]);
+
+  const handleIframeLoad = () => {
+    if (!markedRedirectedRef.current && data?.checkout_url) {
+      markedRedirectedRef.current = true;
+      fetch(`/checkout/${sessionId}/api/mark-redirected`, { method: "POST" }).catch(() => {});
+    }
+    setIframeLoads(n => n + 1);
+  };
 
   const failed = data?.status === "FAILED" || data?.status === "CANCELLED";
+
+  // Once checkout_url is available, render full-screen branded iframe
+  if (data?.checkout_url && !failed && !finishing) {
+    return (
+      <div className="fixed inset-0 flex flex-col bg-background">
+        <div className="flex items-center justify-between border-b border-border bg-card px-4 py-2">
+          <div className="flex items-center gap-2">
+            {data.brand_logo_url && (
+              <img src={data.brand_logo_url} alt={data.brand_name} className="h-6" />
+            )}
+            <span className="text-sm font-medium text-foreground">{data.brand_name}</span>
+          </div>
+          <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
+            Secure · {sessionId.slice(-8)}
+          </span>
+        </div>
+        <iframe
+          ref={iframeRef}
+          src={data.checkout_url}
+          onLoad={handleIframeLoad}
+          title="Secure payment"
+          className="flex-1 w-full border-0 bg-white"
+          allow="payment *; clipboard-write"
+          referrerPolicy="no-referrer"
+          sandbox="allow-forms allow-scripts allow-same-origin allow-popups allow-top-navigation-by-user-activation"
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
@@ -69,14 +135,14 @@ function GatewayPage() {
               <div className="h-10 w-10 animate-spin rounded-full border-4 border-muted border-t-primary" />
             </div>
             <p className="text-sm text-muted-foreground">
-              Preparing your secure checkout&hellip;
+              {finishing ? "Finalizing your payment…" : "Preparing your secure checkout…"}
             </p>
             <p className="mt-2 text-xs text-muted-foreground">
-              You will be redirected to the payment page in a moment.
+              Please don't close this window.
             </p>
-            {polls > 12 && (
+            {polls > 12 && !finishing && (
               <p className="mt-4 text-xs text-muted-foreground">
-                Taking longer than usual. Please don't close this window.
+                Taking longer than usual.
               </p>
             )}
           </>
