@@ -95,8 +95,14 @@ async function loginIfNeeded(page: Page, job: Job): Promise<void> {
   if (cfg.username_selector && cfg.password_selector && cfg.submit_selector) {
     const usernameSelector = `${cfg.username_selector}, ${DEFAULT_LOGIN_USERNAME}`;
     const passwordSelector = `${cfg.password_selector}, ${DEFAULT_LOGIN_PASSWORD}`;
-    if (!(await page.locator(usernameSelector).first().isVisible({ timeout: 8_000 }).catch(() => false))) {
+    let visible = await page.locator(usernameSelector).first().isVisible({ timeout: 5_000 }).catch(() => false);
+    if (!visible) {
       await page.goto(`${job.provider.base_url}/#login`, { waitUntil: "domcontentloaded", timeout: 20_000 });
+      visible = await page.locator(usernameSelector).first().isVisible({ timeout: 5_000 }).catch(() => false);
+    }
+    if (!visible) {
+      console.log(`[${job.apb_session_id}] login form not visible, assuming already logged in (${page.url()})`);
+      return;
     }
     await page.locator(usernameSelector).first().fill(job.provider.username, { timeout: 15_000 });
     await page.locator(passwordSelector).first().fill(job.provider.password, { timeout: 15_000 });
