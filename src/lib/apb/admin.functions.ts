@@ -84,11 +84,11 @@ export const upsertProvider = createServerFn({ method: "POST" })
     if (parsed.username) payload.login_username_enc = encrypt(parsed.username);
     if (parsed.password) payload.login_password_enc = encrypt(parsed.password);
     if (data.id) {
-      const { error } = await supabaseAdmin.from("providers").update(payload).eq("id", data.id);
+      const { error } = await supabaseAdmin.from("providers").update(payload as never).eq("id", data.id);
       if (error) throw new Error(error.message);
       return { id: data.id };
     }
-    const { data: row, error } = await supabaseAdmin.from("providers").insert(payload).select("id").single();
+    const { data: row, error } = await supabaseAdmin.from("providers").insert(payload as never).select("id").single();
     if (error) throw new Error(error.message);
     return { id: row.id };
   });
