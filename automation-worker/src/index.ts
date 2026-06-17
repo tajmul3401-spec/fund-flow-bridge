@@ -51,6 +51,9 @@ type FlowConfig = {
     gateway_selector_chain?: string[];
     final_url_capture?: string; // CSS selector of iframe whose src is the checkout URL
     return_url_field?: string;  // optional input where we inject provider_callback_url
+    wait_for_selector?: string; // wait for this element after chain (e.g. #CardNumber)
+    final_url_contains?: string; // poll URL until it contains this substring
+    final_url_timeout_ms?: number;
   };
 };
 
