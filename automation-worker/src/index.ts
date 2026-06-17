@@ -62,6 +62,7 @@ let inFlight = 0;
 
 const DEFAULT_LOGIN_USERNAME = '#username, input[name="LoginForm[username]"], input[name="username"], input[name="email"], input[type="email"]';
 const DEFAULT_LOGIN_PASSWORD = '#password, input[name="LoginForm[password]"], input[name="password"], input[type="password"]';
+const DEFAULT_LOGIN_SUBMIT = '#loginForm button[type="submit"], form#loginForm button[type="submit"], button[type="submit"]:has-text("Sign in"), button:has-text("Sign in")';
 const DEFAULT_AMOUNT_SELECTOR = '#amount, input[name="amount"], input[name="AddFoundsForm[amount]"], input[name="AddFundsForm[amount]"], input[placeholder*="Amount" i]';
 
 function findUrlContaining(page: Page, needle?: string): string | undefined {
@@ -73,6 +74,40 @@ function findUrlContaining(page: Page, needle?: string): string | undefined {
 async function isAttached(page: Page, selector?: string, timeout = 500): Promise<boolean> {
   if (!selector) return false;
   return page.locator(selector).first().waitFor({ state: "attached", timeout }).then(() => true).catch(() => false);
+}
+
+async function fillAttachedField(page: Page, selector: string, value: string, timeout = 15_000): Promise<void> {
+  const field = page.locator(selector).first();
+  await field.waitFor({ state: "attached", timeout });
+  await field.scrollIntoViewIfNeeded({ timeout: 2_000 }).catch(() => {});
+  if (await field.isVisible({ timeout: 1_000 }).catch(() => false)) {
+    await field.fill(value, { timeout });
+    return;
+  }
+
+  await field.evaluate((element, nextValue) => {
+    const input = element as HTMLInputElement;
+    input.focus();
+    input.value = nextValue;
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+    input.dispatchEvent(new Event("change", { bubbles: true }));
+  }, value);
+}
+
+async function submitAttachedForm(page: Page, selector: string, timeout = 15_000): Promise<void> {
+  const submit = page.locator(selector).first();
+  await submit.waitFor({ state: "attached", timeout });
+  await submit.scrollIntoViewIfNeeded({ timeout: 2_000 }).catch(() => {});
+  if (await submit.isVisible({ timeout: 1_000 }).catch(() => false)) {
+    await submit.click({ timeout });
+    return;
+  }
+
+  await submit.evaluate((element) => {
+    const form = element.closest("form") as HTMLFormElement | null;
+    if (form?.requestSubmit) form.requestSubmit(element as HTMLElement);
+    else form?.submit();
+  });
 }
 
 async function isReadyForCapture(page: Page, cfg: FlowConfig["add_funds"] = {}): Promise<boolean> {
@@ -108,26 +143,44 @@ async function getContext(providerId: string): Promise<BrowserContext> {
 async function loginIfNeeded(page: Page, job: Job): Promise<void> {
   const cfg = job.provider.flow_config.login ?? {};
   const loginUrl = job.provider.base_url + (cfg.url_path ?? "/login");
+  const addFundsCfg = job.provider.flow_config.add_funds ?? {};
+  const addFundsUrl = job.provider.base_url + (addFundsCfg.url_path ?? "/addfund");
+  const amountSelector = `${addFundsCfg.amount_selector ?? DEFAULT_AMOUNT_SELECTOR}, ${DEFAULT_AMOUNT_SELECTOR}`;
   await page.goto(loginUrl, { waitUntil: "domcontentloaded", timeout: 20_000 });
   if (cfg.success_url_contains && page.url().includes(cfg.success_url_contains)) return;
   if (cfg.username_selector && cfg.password_selector && cfg.submit_selector) {
     const usernameSelector = `${cfg.username_selector}, ${DEFAULT_LOGIN_USERNAME}`;
     const passwordSelector = `${cfg.password_selector}, ${DEFAULT_LOGIN_PASSWORD}`;
-    let visible = await page.locator(usernameSelector).first().isVisible({ timeout: 5_000 }).catch(() => false);
-    if (!visible) {
+    const submitSelector = `${cfg.submit_selector}, ${DEFAULT_LOGIN_SUBMIT}`;
+    let found = await isAttached(page, usernameSelector, 5_000);
+    if (!found) {
       await page.goto(`${job.provider.base_url}/#login`, { waitUntil: "domcontentloaded", timeout: 20_000 });
-      visible = await page.locator(usernameSelector).first().isVisible({ timeout: 5_000 }).catch(() => false);
+      found = await isAttached(page, usernameSelector, 5_000);
     }
-    if (!visible) {
-      console.log(`[${job.apb_session_id}] login form not visible, assuming already logged in (${page.url()})`);
+
+    if (!found) {
+      await page.goto(addFundsUrl, { waitUntil: "domcontentloaded", timeout: 20_000 }).catch(() => {});
+      if (await page.locator(amountSelector).first().isVisible({ timeout: 5_000 }).catch(() => false)) {
+        console.log(`[${job.apb_session_id}] already logged in (${page.url()})`);
+        return;
+      }
+      throw new Error(`Login form not found at ${loginUrl}; current page ${page.url()}`);
+    }
+
+    await fillAttachedField(page, usernameSelector, job.provider.username);
+    await fillAttachedField(page, passwordSelector, job.provider.password);
+    await Promise.all([
+      page.waitForLoadState("domcontentloaded", { timeout: 20_000 }).catch(() => {}),
+      submitAttachedForm(page, submitSelector),
+    ]);
+
+    await page.goto(addFundsUrl, { waitUntil: "domcontentloaded", timeout: 20_000 }).catch(() => {});
+    if (await page.locator(amountSelector).first().isVisible({ timeout: 8_000 }).catch(() => false)) {
+      console.log(`[${job.apb_session_id}] login OK (${page.url()})`);
       return;
     }
-    await page.locator(usernameSelector).first().fill(job.provider.username, { timeout: 15_000 });
-    await page.locator(passwordSelector).first().fill(job.provider.password, { timeout: 15_000 });
-    await Promise.all([
-      page.waitForLoadState("domcontentloaded"),
-      page.click(cfg.submit_selector),
-    ]);
+
+    throw new Error(`Login did not reach add funds page. Current page ${page.url()}`);
   }
 }
 
