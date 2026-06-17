@@ -1,11 +1,11 @@
-// Integration-managed auth gate (ssr: false, redirects to /auth).
+// Integration-managed auth gate (client-side auth check, redirects to /auth).
 import { createFileRoute, Outlet, redirect, Link, useRouter } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { LayoutDashboard, Server, Users, Receipt, Cpu, BookOpen, LogOut, FlaskConical } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated")({
-  ssr: false,
   beforeLoad: async () => {
+    if (typeof window === "undefined") return;
     const { data, error } = await supabase.auth.getUser();
     if (error || !data.user) throw redirect({ to: "/auth" });
     return { user: data.user };
