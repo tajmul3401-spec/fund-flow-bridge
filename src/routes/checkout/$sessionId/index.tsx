@@ -97,23 +97,8 @@ function GatewayPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [opened]);
 
-  // Also: as soon as the payment popup navigates cross-origin (away from
-  // our domain), close it ourselves. The merchant tab keeps polling and
-  // the popup-closed effect above will then redirect the user back.
-  useEffect(() => {
-    if (!opened) return;
-    const probe = setInterval(() => {
-      const w = popupRef.current;
-      if (!w || w.closed) return;
-      try {
-        // Same-origin: readable. Cross-origin: throws → we close it.
-        void w.location.href;
-      } catch {
-        try { w.close(); } catch { /* ignore */ }
-      }
-    }, 800);
-    return () => clearInterval(probe);
-  }, [opened]);
+  // (Cross-origin probe removed — the EPS gateway itself is cross-origin
+  // from us, so probing closes the popup the instant it opens.)
 
   function redirectBackToMerchant(j: Status | null) {
     setFinishing(true);
