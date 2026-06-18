@@ -77,20 +77,42 @@ function GatewayPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sessionId]);
 
-  // If user closes the payment popup without a terminal status, give it 60s
-  // grace then mark cancelled. (Gives EPS time to fire the webhook.)
+  // If the payment popup closes (user crossed it, EPS redirected it to
+  // bestfollows, or browser killed it), give a short grace for the webhook
+  // to land, then force-finalize so the user is bounced back to the
+  // merchant — never left on bestfollows / EPS.
   useEffect(() => {
     if (!opened) return;
     const interval = setInterval(() => {
       if (popupRef.current && popupRef.current.closed) {
         clearInterval(interval);
+        // 4s grace → enough for EPS webhook to flip status to COMPLETED.
+        // If still non-terminal, we mark CANCELLED and redirect.
         setTimeout(() => {
           if (!finishingRef.current) cancelAndExit();
-        }, 60_000);
+        }, 4_000);
       }
-    }, 1000);
+    }, 500);
     return () => clearInterval(interval);
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [opened]);
+
+  // Also: as soon as the payment popup navigates cross-origin (away from
+  // our domain), close it ourselves. The merchant tab keeps polling and
+  // the popup-closed effect above will then redirect the user back.
+  useEffect(() => {
+    if (!opened) return;
+    const probe = setInterval(() => {
+      const w = popupRef.current;
+      if (!w || w.closed) return;
+      try {
+        // Same-origin: readable. Cross-origin: throws → we close it.
+        void w.location.href;
+      } catch {
+        try { w.close(); } catch { /* ignore */ }
+      }
+    }, 800);
+    return () => clearInterval(probe);
   }, [opened]);
 
   function redirectBackToMerchant(j: Status | null) {
