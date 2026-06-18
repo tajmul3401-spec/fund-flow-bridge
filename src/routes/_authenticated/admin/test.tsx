@@ -62,7 +62,7 @@ function TestPage() {
         <div>
           <label className="block text-xs font-medium uppercase tracking-wider text-muted-foreground">Amount (BDT)</label>
           <input
-            type="number" min={1} step="0.01" value={amount}
+            type="number" min={0.2} step="0.01" value={amount}
             onChange={e => setAmount(Number(e.target.value))}
             className="mt-1 w-full rounded-md border border-input bg-background p-2 text-sm"
             required
